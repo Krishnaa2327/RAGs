@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+docs_path = "docs"
+
 def load_documents(docs_path="docs"):
     """Load all text files from the docs directory"""
     print(f"Loading documents from {docs_path}...")
@@ -19,7 +21,8 @@ def load_documents(docs_path="docs"):
     loader = DirectoryLoader(
         path=docs_path,
         glob="*.txt",
-        loader_cls=TextLoader
+        loader_cls=TextLoader,
+        loader_kwargs={"encoding": "utf-8"}
     )
     
     documents = loader.load()
@@ -48,18 +51,18 @@ def split_documents(documents, chunk_size=1000, chunk_overlap=0):
     
     chunks = text_splitter.split_documents(documents)
     
-    if chunks:
+    # if chunks:
     
-        for i, chunk in enumerate(chunks[:5]):
-            print(f"\n--- Chunk {i+1} ---")
-            print(f"Source: {chunk.metadata['source']}")
-            print(f"Length: {len(chunk.page_content)} characters")
-            print(f"Content:")
-            print(chunk.page_content)
-            print("-" * 50)
+    #     for i, chunk in enumerate(chunks[:5]):
+    #         print(f"\n--- Chunk {i+1} ---")
+    #         print(f"Source: {chunk.metadata['source']}")
+    #         print(f"Length: {len(chunk.page_content)} characters")
+    #         print(f"Content:")
+    #         print(chunk.page_content)
+    #         print("-" * 50)
         
-        if len(chunks) > 5:
-            print(f"\n... and {len(chunks) - 5} more chunks")
+    #     if len(chunks) > 5:
+    #         print(f"\n... and {len(chunks) - 5} more chunks")
     
     return chunks
 
@@ -106,7 +109,7 @@ def main():
     print("Persistent directory does not exist. Initializing vector store...\n")
     
     # Step 1: Load documents
-    documents = load_documents(docs_path)  
+    documents = load_documents(docs_path ="docs")  
 
     # Step 2: Split into chunks
     chunks = split_documents(documents)
