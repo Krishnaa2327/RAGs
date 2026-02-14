@@ -1,11 +1,8 @@
 import os
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
-from langchain_text_splitters import CharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_ollama import OllamaEmbeddings
 from langchain_chroma import Chroma
-from dotenv import load_dotenv
-
-load_dotenv()
 
 docs_path = "docs"
 
@@ -40,13 +37,13 @@ def load_documents(docs_path="docs"):
 
     return documents
 
-def split_documents(documents, chunk_size=1000, chunk_overlap=0):
-    """Split documents into smaller chunks with overlap"""
+def split_documents(documents, chunk_size=1000, chunk_overlap=200):
     print("Splitting documents into chunks...")
     
-    text_splitter = CharacterTextSplitter(
+    text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size, 
-        chunk_overlap=chunk_overlap
+        chunk_overlap=chunk_overlap,
+        separators=["\n\n", "\n", " ", ""]
     )
     
     chunks = text_splitter.split_documents(documents)
@@ -67,10 +64,9 @@ def split_documents(documents, chunk_size=1000, chunk_overlap=0):
     return chunks
 
 def create_vector_store(chunks, persist_directory="db/chroma_db"):
-    """Create and persist ChromaDB vector store"""
     print("Creating embeddings and storing in ChromaDB...")
         
-    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+    embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
     
     # Create ChromaDB vector store
     print("--- Creating vector store ---")
@@ -97,7 +93,7 @@ def main():
     if os.path.exists(persistent_directory):
         print("Vector store already exists. No need to re-process documents.")
         
-        embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+        embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
         vectorstore = Chroma(
             persist_directory=persistent_directory,
             embedding_function=embedding_model, 
