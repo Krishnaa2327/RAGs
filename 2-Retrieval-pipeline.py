@@ -1,10 +1,21 @@
+import os
+from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_ollama import OllamaEmbeddings
+# from langchain_ollama import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Verify OPENAI_API_KEY is set
+if not os.getenv("OPENAI_API_KEY"):
+    raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in your .env file.")
 
 persistent_directory = "db/chroma_db"
 
 # Load embeddings and vector store
-embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
+# embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
+embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
 db = Chroma(
     persist_directory=persistent_directory,

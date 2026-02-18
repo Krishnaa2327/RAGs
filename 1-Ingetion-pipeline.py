@@ -1,8 +1,17 @@
 import os
+from dotenv import load_dotenv
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_ollama import OllamaEmbeddings
+# from langchain_ollama import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Verify OPENAI_API_KEY is set
+if not os.getenv("OPENAI_API_KEY"):
+    raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in your .env file.")
 
 docs_path = "docs"
 
@@ -66,7 +75,7 @@ def split_documents(documents, chunk_size=1000, chunk_overlap=200):
 def create_vector_store(chunks, persist_directory="db/chroma_db"):
     print("Creating embeddings and storing in ChromaDB...")
         
-    embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
     
     # Create ChromaDB vector store
     print("--- Creating vector store ---")
@@ -93,7 +102,7 @@ def main():
     if os.path.exists(persistent_directory):
         print("Vector store already exists. No need to re-process documents.")
         
-        embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
+        embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
         vectorstore = Chroma(
             persist_directory=persistent_directory,
             embedding_function=embedding_model, 
